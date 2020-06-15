@@ -35,11 +35,13 @@ def mkplot_hr(data,residual,datatable,pixnoise,wcs,outfile,plot_ids=False):
                                path_effects.Normal()])
 
     ax1.set_title("Original",fontsize=15)
-    ax1.set_xlabel("right-ascension",fontsize=15)
-    ax1.set_ylabel("declination",fontsize=15)
+    ax1.set_xlabel("Right-ascension",fontsize=15)
+    ax1.set_ylabel("Declination",fontsize=15)
     ax1.tick_params(axis="both",which="major",labelsize=15)
     ax1.coords[0].set_major_formatter('hh:mm:ss.s')
     ax1.coords[1].set_major_formatter('dd:mm:ss.s')
+    ax1.coords[0].set_ticklabel(size=11)
+    ax1.coords[1].set_ticklabel(size=11)
     ax1.legend(loc="best",fontsize=10,bbox_to_anchor=(1.015, 1.0))
 
     # residual
@@ -50,10 +52,12 @@ def mkplot_hr(data,residual,datatable,pixnoise,wcs,outfile,plot_ids=False):
     ax2.plot(datatable["RA_tractor.hr"],datatable["DEC_tractor.hr"],"o",markersize=14,fillstyle="none",color=def_cols[1],transform=ax2.get_transform('world'),label="Tractor")
     ax2.plot(datatable["RA_tractor.hr"][sel_pointsource],datatable["DEC_tractor.hr"][sel_pointsource],"s",markersize=14,fillstyle="none",color=def_cols[2],transform=ax2.get_transform('world'),label="point source")
     ax2.set_title(r"Residual ($\frac{1}{N}\,\sum\,{\rm res^{2}}$ = %5.5f)" % (normalized_sum_of_residuals) , fontsize=15)
-    ax2.set_xlabel("right-ascension",fontsize=15)
-    ax2.set_ylabel("declination",fontsize=15)
+    ax2.set_xlabel("Right-ascension",fontsize=15)
+    ax2.set_ylabel("Declination",fontsize=15)
     ax2.coords[0].set_major_formatter('hh:mm:ss.s')
     ax2.coords[1].set_major_formatter('dd:mm:ss.s')
+    ax2.coords[0].set_ticklabel(size=11)
+    ax2.coords[1].set_ticklabel(size=11)
     #ax2.legend(loc="best",fontsize=10)
 
     plt.savefig(outfile,bbox_inches='tight')

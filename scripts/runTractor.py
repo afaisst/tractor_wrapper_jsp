@@ -1,4 +1,4 @@
-## Run as runTractorACS_FINAL_jsp.py jobX.json
+## Run as runTractor.py jobX.json
 #
 # A. Faisst
 #
@@ -40,17 +40,16 @@ from tractor.sersic import *
 
 # import ConstrainedOptimizer()
 import_file_list = ["constrained_optimizer.py",
-                   "TractorACS_functions.py",
+                   "functions.py",
                    "run_sextractor_residual.py",
                    "get_HR_model.py",
                    "fit_LR_image.py",
-                   "create_mock_image_from_HR_image.py",
                    "create_LR_segmap_from_SExtractor.py",
                    "create_LR_segmap_from_HR_model.py",
                    "create_cutouts.py",
                    "plot_lr_images.py",
                    "plot_hr_images.py",
-                   "run_MP_functions_jsp_sb3.py"]
+                   "run_MP_functions.py"]
 for file in import_file_list:
     exec(compile(open(file, "rb").read(), file, 'exec'))
 
@@ -99,7 +98,7 @@ print(cutout_results)
 if cutout_results["success"]:
 	## Run Tractor
 	start_time = time.time() # get time
-	runTractorACS_helper(userinput=userinput , usemultiproc=False , tile_id_list=tile_id , doplots=False)
+	runTractor_helper(userinput=userinput , usemultiproc=False , tile_id_list=tile_id , doplots=False)
 	elapsed_time = time.time() - start_time
 	print("\n\n ALL FINISHED IN: " + str(round(elapsed_time/60,2)) + " minutes")
 	LOG.append("ALL FINISHED IN: " + str(round(elapsed_time/60,2)) + " minutes")

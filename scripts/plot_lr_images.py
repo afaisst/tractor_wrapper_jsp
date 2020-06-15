@@ -304,8 +304,8 @@ def plot_lr_images(userinput , tileid , plot_ids):
     ax1.plot(TAB_notuse["X_IMAGE_tractor.lr"]-1,TAB_notuse["Y_IMAGE_tractor.lr"]-1,"x",markersize=7,markeredgewidth=1,fillstyle="none",alpha=1,color="red")
 
     ax1.set_title("Original low-resolution image",fontsize=15)
-    #ax1.set_xlabel("Right-ascension (J2000)",fontsize=12,labelpad=2)
-    ax1.set_ylabel("Declination (J2000)",fontsize=12,labelpad=2)
+    ax1.set_xlabel("Right-ascension",fontsize=12,labelpad=2)
+    ax1.set_ylabel("Declination",fontsize=12,labelpad=2)
     ax1.xaxis.set_tick_params(labelsize=13)
     ax1.yaxis.set_tick_params(labelsize=13)
     ax1.tick_params(axis="both",which="minor",length=2)
@@ -337,8 +337,8 @@ def plot_lr_images(userinput , tileid , plot_ids):
 
 
     ax2.set_title("Residual low-resolution image",fontsize=15)
-    #ax2.set_xlabel("Right-ascension (J2000)",fontsize=12,labelpad=2)
-    #ax2.set_ylabel("Declination (J2000)",fontsize=12,labelpad=2)
+    ax2.set_xlabel("Right-ascension",fontsize=12,labelpad=2)
+    ax2.set_ylabel("Declination",fontsize=12,labelpad=2)
     ax2.xaxis.set_tick_params(labelsize=13)
     ax2.yaxis.set_tick_params(labelsize=13)
     ax2.tick_params(axis="both",which="minor",length=2)
@@ -371,8 +371,8 @@ def plot_lr_images(userinput , tileid , plot_ids):
 
 
     ax3.set_title("Low-resolution segmentation map",fontsize=15)
-    ax3.set_xlabel("Right-ascension (J2000)",fontsize=12,labelpad=2)
-    ax3.set_ylabel("Declination (J2000)",fontsize=12,labelpad=2)
+    ax3.set_xlabel("Right-ascension",fontsize=12,labelpad=2)
+    ax3.set_ylabel("Declination",fontsize=12,labelpad=2)
     ax3.xaxis.set_tick_params(labelsize=13)
     ax3.yaxis.set_tick_params(labelsize=13)
     ax3.tick_params(axis="both",which="minor",length=2)
@@ -406,8 +406,8 @@ def plot_lr_images(userinput , tileid , plot_ids):
 
 
     ax4.set_title("Low-resolution mask map",fontsize=15)
-    ax4.set_xlabel("Right-ascension (J2000)",fontsize=12,labelpad=2)
-    #ax4.set_ylabel("Declination (J2000)",fontsize=12,labelpad=2)
+    ax4.set_xlabel("Right-ascension",fontsize=12,labelpad=2)
+    ax4.set_ylabel("Declination",fontsize=12,labelpad=2)
     ax4.xaxis.set_tick_params(labelsize=13)
     ax4.yaxis.set_tick_params(labelsize=13)
     ax4.tick_params(axis="both",which="minor",length=2)

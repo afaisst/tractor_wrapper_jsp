@@ -12,5 +12,5 @@ cpu_threads() {
     echo $first_cpu_thread,$second_cpu_thread
 }
 
-taskset -c $(cpu_threads) python runTractorACS_FINAL_jsp_sb4.py ../jobs/job_${jobnbr}.json
+taskset -c $(cpu_threads) python runTractor.py ../example_data/jobs/job_${jobnbr}.json
 
