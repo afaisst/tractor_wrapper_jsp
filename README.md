@@ -147,4 +147,22 @@ As a practical example, if you have a large image with the size 3' x 3' and you 
 You can create 9 job files which are exact copies, except you change the "tile_id" keyword so it is 0 in job_1.json, 1 in job_2.json, .... , 8 in job_9.json. **Not that the tile number starts with 0 but the job files start with 1 (at least in the bash shell scripts that are included here)**
 
 
-### Example Data
+#### Example Data
+
+Example data (image, PSF, astrometry offsets, one job file) can be downloaded here:
+https://caltech.box.com/s/dekvuoyf1wzpqi5d6isajksfrt5duh9i
+
+Download the .tar file and unzip it in the same directory as the files in this repository.
+You should be able to run the code directly by running (in the "scripts/" directory):
+
+```
+python runTractor.py ../example_data/jobs/job_1.json
+```
+
+All the above scripts to run things in parallel work directly with this example data.
+
+The example data is a 3' x 3' simulation of ACS (hr.fits) and HSC (lr.fits) data. The cutout size is chosen such that there are 9 tiles (see section above). The example data includes one job file ("jobs/job_1.json") that runs tile number 0.
+
+
+
+
