@@ -36,11 +36,61 @@ parallel -j 2 ./task_runner_jsp.sh {%} {} ::: {1..4}
 ```
 which would run 4 jobs on 2 CPUs each. If you have 4 CPUs in total, this would run two jobs at the same time in parallel.
 
-Note that there are other ways to handle parallel computing. These can be easily implemented given the very simple syntax to run the main code (python runTractor.py JOBFILE)
+The task runner file (task_runner_jsp.sh) looks something like this:
+```
+#! /bin/bash
+# task_runner_jsp.sh
+ 
+slot=$1
+ 
+jobnbr=$2
+ 
+# This function determines which virtual CPUs correspond to the specified slot:
+cpu_threads() {
+    minus=$((slot - 1))
+    first_cpu_thread=$((2 * minus))
+    second_cpu_thread=$((first_cpu_thread + 1))
+    echo $first_cpu_thread,$second_cpu_thread
+}
+
+taskset -c $(cpu_threads) python runTractor.py ../example_data/jobs/job_${jobnbr}.json
+```
+
+
+Note that there are other ways to handle parallel computing. These can be easily implemented given the very simple syntax to run the main code (python runTractor.py JOBFILE). One way is to directly feed a list of JSON files directly to "parallel", for example:
+
+```
+ls my/path/*.json | parallel -j C ./task_runner_list.sh {%} {}
+```
+Note that the file "task_runner_list.sh" is not the same as above ("task_runner_jsp.sh"). It needs to be slightly modified to accept a list instead of a number:
+
+```
+#! /bin/bash
+# task_runner_list.sh
+ 
+slot=$1
+ 
+jobfile=$2
+ 
+# This function determines which virtual CPUs correspond to the specified slot:
+cpu_threads() {
+    minus=$((slot - 1))
+    first_cpu_thread=$((2 * minus))
+    second_cpu_thread=$((first_cpu_thread + 1))
+    echo $first_cpu_thread,$second_cpu_thread
+}
+
+taskset -c $(cpu_threads) python runTractor.py ${jobfile}
+```
+
 
 #### Things to addjust and to create
 
-d
+
+
+
+#### The job file
+
 
 
 ### Example
