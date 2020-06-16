@@ -1,9 +1,9 @@
 #! /bin/bash
-# task_runner_jsp.sh
+# task_runner_list.sh
  
 slot=$1
  
-jobnbr=$2
+jobfile=$2
  
 # This function determines which virtual CPUs correspond to the specified slot:
 cpu_threads() {
@@ -13,5 +13,4 @@ cpu_threads() {
     echo $first_cpu_thread,$second_cpu_thread
 }
 
-taskset -c $(cpu_threads) python runTractor.py ../example_data/jobs/job_${jobnbr}.json
-
+taskset -c $(cpu_threads) python runTractor.py ${jobfile}

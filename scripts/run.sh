@@ -1,6 +1,6 @@
 #!/bin/bash
-# Run all X jobs on Y CPUs (2*Y vCPUs)
+# Run all N jobs on C CPUs (2*C vCPUs)
 # Do not forget to time it
-# parallel -j Y ./task_runner_jsp.sh {%} {} ::: {1..X}
+# parallel -j C ./task_runner_jsp.sh {%} {} ::: {1..N}
 
 parallel -j 1 ./task_runner_jsp.sh {%} {} ::: {1..1}
