@@ -86,11 +86,39 @@ taskset -c $(cpu_threads) python runTractor.py ${jobfile}
 
 #### Things to addjust and to create
 
-
+If you run the wrapper on a single job file, then the only thing you need to change is the job file itself (see below).
+If you run the wrapper in parallel, you need to change
+- the job file(s) (see below)
+- the path to the job files in the "task_runner_jsp.sh" (or "task_runner_list.sh") file
 
 
 #### The job file
 
-
+A job file is a JSON file containing all information for the code to run.
+It looks something like this:
+```
+{"workdir": "../work/",
+"sexinputdir": "../sextractor_input/",
+"out_prefix": "S1",
+"cutoutsize_arcsec": [60, 60],
+"cutoutoverlap_arcsec": [10, 10],
+"cutout_output_dir": "../cutouts/",
+"hr_wht_image_type": "MAP_WEIGHT",
+"hr_compl_niter": 15,
+"hr_ps_niter": 5,
+"lr_compl_niter": 10,
+"hr_zp": 25.94734,
+"lr_zp": 27,
+"sex_command": "/usr/bin/sextractor",
+"hr_large_image_name": "../example_data/images/3sqarcmin/hr.fits",
+"hr_large_image_wht_name": "none",
+"lr_large_image_name": "../example_data/images/3sqarcmin/lr.fits",
+"hr_image_psf": "../example_data/psf/HSC-I-9813-5_4-2812_psf.fits",
+"lr_image_psf": "../example_data/psf/calexp-HSC-I-9813-5_4-9813_2812.psf",
+"lr_astrometry_correction_name": "../example_data/astrometry_offsets/lr_astro.txt",
+"hr_astrometry_correction_name": "../example_data/astrometry_offsets/hr_astro.txt",
+"tile_id": 0
+}
+```
 
 ### Example
