@@ -159,10 +159,16 @@ You should be able to run the code directly by running (in the "scripts/" direct
 python runTractor.py ../example_data/jobs/job_1.json
 ```
 
-All the above scripts to run things in parallel work directly with this example data.
+The script should finish in between 1 and 2 minutes depending on your computer.
+
+All the above scripts to run things in parallel work directly with this example data. If you have GNU parallel installed, you can run the one job in parallel (which is non sense, but never mind) by executing:
+```
+sh run.sh
+```
+in the "scripts/" directory. This runs 1 job with 1 CPU.
 
 The example data is a 3' x 3' simulation of ACS (hr.fits) and HSC (lr.fits) data. The cutout size is chosen such that there are 9 tiles (see section above). The example data includes one job file ("jobs/job_1.json") that runs tile number 0.
 
-
+Add more jobs files (changing tile_id to 1, 2, 3, 4, 5, 6, 7, or 8) and adjust the "run.sh" file to run all of them in parallel.
 
 
