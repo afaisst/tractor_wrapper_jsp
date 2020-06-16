@@ -95,7 +95,7 @@ If you run the wrapper in parallel, you need to change
 #### The job file
 
 A job file is a JSON file containing all information for the code to run.
-It looks something like this:
+It looks something like this (the file names are taken from the example data, see below):
 ```
 {"workdir": "../work/",
 "sexinputdir": "../sextractor_input/",
@@ -103,15 +103,12 @@ It looks something like this:
 "cutoutsize_arcsec": [60, 60],
 "cutoutoverlap_arcsec": [10, 10],
 "cutout_output_dir": "../cutouts/",
-"hr_wht_image_type": "MAP_WEIGHT",
 "hr_compl_niter": 15,
-"hr_ps_niter": 5,
 "lr_compl_niter": 10,
 "hr_zp": 25.94734,
 "lr_zp": 27,
 "sex_command": "/usr/bin/sextractor",
 "hr_large_image_name": "../example_data/images/3sqarcmin/hr.fits",
-"hr_large_image_wht_name": "none",
 "lr_large_image_name": "../example_data/images/3sqarcmin/lr.fits",
 "hr_image_psf": "../example_data/psf/HSC-I-9813-5_4-2812_psf.fits",
 "lr_image_psf": "../example_data/psf/calexp-HSC-I-9813-5_4-9813_2812.psf",
@@ -120,5 +117,25 @@ It looks something like this:
 "tile_id": 0
 }
 ```
+
+with the following options:
+- workdir: Path (absolute or relative) to working directory. All the output will be in there.
+- sexinputdir: Path (absolute or relative) to SExtractor input directory. It contains the configuration file template as well as convolution filters.
+- out_prefix: Output prefix that should be added to the name. The output name is then [prefix]_[image name]_[tile number]
+- cutoutsize_arcsec: The size of the cutout in arcseconds (the script tiles the input image in tiles on which Tractor is run)
+- cutoutoverlap_arcsec: Overlap in arcseconds of the cutout tiles
+- cutout_output_dir: Path (absolute or relative) where to save the cutouts
+- hr_compl_niter: Maximal number of iteration to fit a model to a source in the high-resolution image. Fit is aborted (but result still saved and might not be bad!) if the number of iterations exceeds this limit and no good fit (delta < 1e-3) has been found.
+- lr_compl_niter: Maximal number of iteration to fit a model to a source in the low-resolution image. Fit is aborted (but result still saved and might not be bad!) if the number of iterations exceeds this limit and no good fit (delta < 1e-3) has been found.
+- hr_zp: Photometric zeropoint of high-resolution image
+- lr_zp: Photometric zeropoitn of low-resolution image
+- sex_command: Command-line command to run SExtractor (depends on the installation of SExtractor)
+- hr_large_image_name: Large (un-tiled) name of the high-resolution image. This image gets tiles using the cutoutsize_arcsec keyword).
+- lr_large_image_name: Large (un-tiled) name of the low-resolution image. This image gets tiles using the cutoutsize_arcsec keyword). Note that a mask image should be included in one of the fits extensions using the same format as the HSC images (they have an "IMAGE" and "MASK" and "VARIANCE" extension that are used by this code. Make sure to include them if you, for example, simulated data).
+- hr_image_psf: PSF in FITS format of the high-resolution image
+- lr_image_psf: PSF in PSFex format *or* a FWHM in arcseconds (float). For the latter case, a gaussian PSF with that FWHM is created. For the former case: so far, the code only accepts a magnitude-dependent PSFex PSF. It evaluates the PSF at a hard-coded value of mag = 21. Yes, this needs to be changed. A better approach would be to just input a fits file as for the high-resolution image, and leave it to the user to create the PSF for each image.
+- lr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the low-resolution image. The file lists offsets in milli-arcseconds between stars on the low-resolution image and Gaia (in the sense LRI-Gaia). There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
+- hr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the high-resolution image. The file lists offsets in milli-arcseconds between stars on the high-resolution image and Gaia (in the sense HRI-Gaia). There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
+
 
 ### Example
