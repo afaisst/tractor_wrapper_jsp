@@ -136,6 +136,15 @@ with the following options:
 - lr_image_psf: PSF in PSFex format *or* a FWHM in arcseconds (float). For the latter case, a gaussian PSF with that FWHM is created. For the former case: so far, the code only accepts a magnitude-dependent PSFex PSF. It evaluates the PSF at a hard-coded value of mag = 21. Yes, this needs to be changed. A better approach would be to just input a fits file as for the high-resolution image, and leave it to the user to create the PSF for each image.
 - lr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the low-resolution image. The file lists offsets in milli-arcseconds between stars on the low-resolution image and Gaia (in the sense LRI-Gaia). There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
 - hr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the high-resolution image. The file lists offsets in milli-arcseconds between stars on the high-resolution image and Gaia (in the sense HRI-Gaia). There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
+-tile_id: This integer number defines the tile on which the code is run. This is the essential number linked to the job file. See below for a detailed explanation.
+
+#### Tiling and jobs
+The code takes an input image ("lr_large_image_name" and "hr_large_image_name") and first creates cutout tiles of that image according the the size defined by the user (using the keyword "cutoutsize_arcsec").
+For example, if the image is of size 3' x 3', and the cutout size is chosen to be [60,60] (meaning 1' x 1'), then 9 tiles are created. **Make sure that the cutout size covers the whole image!**. The keyword "tile_id" lets you tell the program on which tile it should run. This defines a job.
+Reasonably, the tile (cutout) size should not exceed 3' x 3'. Else Tractor will run for quite a while and running multiple jobs of smaller tiles is beneficial.
+
+As a practical example, if you have a large image with the size 3' x 3' and you choose a cutout size of 1' x 1' (60" x 60"), you need 9 jobs to finish the image.
+You can create 9 job files which are exact copies, except you change the "tile_id" keyword so it is 0 in job_1.json, 1 in job_2.json, .... , 8 in job_9.json. **Not that the tile number starts with 0 but the job files start with 1 (at least in the bash shell scripts that are included here)**
 
 
-### Example
+### Example Data
