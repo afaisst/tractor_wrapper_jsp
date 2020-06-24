@@ -111,7 +111,9 @@ It looks something like this (the file names are taken from the example data, se
 "hr_large_image_name": "../example_data/images/3sqarcmin/hr.fits",
 "lr_large_image_name": "../example_data/images/3sqarcmin/lr.fits",
 "hr_image_psf": "../example_data/psf/HSC-I-9813-5_4-2812_psf.fits",
+"hr_psf_type":"fits",
 "lr_image_psf": "../example_data/psf/calexp-HSC-I-9813-5_4-9813_2812.psf",
+"lr_psf_type":"psfex",
 "lr_astrometry_correction_name": "../example_data/astrometry_offsets/lr_astro.txt",
 "hr_astrometry_correction_name": "../example_data/astrometry_offsets/hr_astro.txt",
 "tile_id": 0
@@ -132,14 +134,17 @@ with the following options:
 - sex_command: Command-line command to run SExtractor (depends on the installation of SExtractor)
 - hr_large_image_name: Large (un-tiled) name of the high-resolution image. This image gets tiles using the cutoutsize_arcsec keyword).
 - lr_large_image_name: Large (un-tiled) name of the low-resolution image. This image gets tiles using the cutoutsize_arcsec keyword). Note that a mask image should be included in one of the fits extensions using the same format as the HSC images (they have an "IMAGE" and "MASK" and "VARIANCE" extension that are used by this code. Make sure to include them if you, for example, simulated data).
-- hr_image_psf: PSF in FITS format of the high-resolution image
-- lr_image_psf: PSF in PSFex format *or* a FWHM in arcseconds (float). For the latter case, a gaussian PSF with that FWHM is created. For the former case: so far, the code only accepts a magnitude-dependent PSFex PSF. It evaluates the PSF at a hard-coded value of mag = 21. Yes, this needs to be changed. A better approach would be to just input a fits file as for the high-resolution image, and leave it to the user to create the PSF for each image.
+- hr_image_psf: PSF of the high-resolution image (see "hr_psf_type").
+- hr_psf_type: PSF type, can be "fits" (FITS image), "fwhm" (the Gaussian FWHM in arcsec, float), "psfex" (PSFex gemerated PSF). 
+- lr_image_psf: PSF of the low-resolution image (see "lr_psf_type").
+- lr_psf_type: PSF type, can be "fits" (FITS image), "fwhm" (the Gaussian FWHM in arcsec, float), "psfex" (PSFex gemerated PSF). 
 - lr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the low-resolution image. The file lists offsets in milli-arcseconds between stars on the low-resolution image and Gaia (in the sense LRI-Gaia). There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
 - hr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the high-resolution image. The file lists offsets in milli-arcseconds between stars on the high-resolution image and Gaia (in the sense HRI-Gaia). There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
 -tile_id: This integer number defines the tile on which the code is run. This is the essential number linked to the job file. See below for a detailed explanation.
 
-Note: you can define relative paths. For example, use "../FOLDER" if script is run in "scripts/". 
 
+Note 1: you can define relative paths. For example, use "../FOLDER" if script is run in "scripts/". 
+Note 2: PSF can be either a FITS file, a number (given the FWHM of a Gaussian PSF), or in PSFex format. For the latter case: so far, the code only accepts a magnitude-dependent PSFex PSF. It evaluates the PSF at a hard-coded value of mag = 21. Yes, this needs to be changed.
 
 #### Tiling and jobs
 The code takes an input image ("lr_large_image_name" and "hr_large_image_name") and first creates cutout tiles of that image according the the size defined by the user (using the keyword "cutoutsize_arcsec").
