@@ -83,19 +83,29 @@ def get_HR_model(userinput,tileids):
         ## 3.5 Get the PSFs.
 
         # HR image
-        if is_number(userinput["hr_image_psf"]):
+        if userinput["hr_psf_type"] == "fwhm":
             PSF_FWHM_ARCSEC_HR = userinput["hr_image_psf"]
             PSF_HR_TYPE = "fwhm"
             print("Using given FWHM and gaussian for PSF of high-res image.")
             STATS.append("Using given FWHM and gaussian for PSF of high-res image.")
-        else:
+        elif userinput["hr_psf_type"] == "fits":
             PSF_HR_TYPE = "pixel"
             with fits.open(os.path.join(userinput["hr_image_psf"])) as hdul:
-                PSF_HR_PIXEL = hdul[0].data #modelPSF_1D(psfcube=hdul[1].data,psfcube_h=hdul[1].header,param=22)
+                PSF_HR_PIXEL = hdul[0].data
                 PSF_HR_PIXEL = PSF_HR_PIXEL / np.nansum(PSF_HR_PIXEL)
-            print("Using pixel PSF for high-res image.")
-            STATS.append("Using pixel PSF for high-res image.")
-
+            print("Using pixel PSF for high-res image in FITS format.")
+            STATS.append("Using pixel PSF for high-res image in FITS format.")
+        elif userinput["hr_psf_type"] == "psfex":
+            PSF_HR_TYPE = "pixel"
+            with fits.open(os.path.join(userinput["hr_image_psf"])) as hdul:
+                PSF_HR_PIXEL = modelPSF_1D(psfcube=hdul[1].data,psfcube_h=hdul[1].header,param=21) #22
+                PSF_HR_PIXEL = PSF_HR_PIXEL / np.nansum(PSF_HR_PIXEL)
+            print("Using pixel PSF for high-res image in PSFex format.")
+            STATS.append("Using pixel PSF for high-res image in PSFex format.")
+        else:
+            print("PSF type not understood.")
+            STATS.append("PSF type not understood.")
+            quit()
 
         ## 4. Run SExtractor ===========================
 

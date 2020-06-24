@@ -57,21 +57,6 @@ def run_sextractor_residual(userinput,tileid,doplot):
     print("Pixelnoise of low-res image: %g" % lr_img_pixnoise )
     print("Median background of low-res image: %g" % lr_img_medbkg )
 
-    ## 3.8 Load PSF (LR image) ==============
-    if is_number(userinput["lr_image_psf"]):
-        PSF_FWHM_ARCSEC_LR = userinput["lr_image_psf"]
-        PSF_LR_TYPE = "fwhm"
-        print("Using given FWHM and gaussian for PSF of low-res image.")
-    else:
-        PSF_LR_TYPE = "pixel"
-        with fits.open(os.path.join(userinput["lr_image_psf"])) as hdul:
-            PSF_LR_PIXEL = modelPSF_1D(psfcube=hdul[1].data,psfcube_h=hdul[1].header,param=22)
-            #tmp = Cutout2D(data=PSF_LR_PIXEL,position=ndimage.measurements.maximum_position(PSF_LR_PIXEL),size=(21,21) , copy=True , mode="trim")
-            #PSF_LR_PIXEL = tmp.data.copy()
-            PSF_LR_PIXEL = PSF_LR_PIXEL / np.nansum(PSF_LR_PIXEL)
-        print("Using pixel PSF for low-res image.")
-
-
 
     ## 4. Run SExtractor =====================
 

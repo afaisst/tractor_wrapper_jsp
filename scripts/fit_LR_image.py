@@ -188,20 +188,31 @@ def fit_LR_image(userinput , tileid , seg_map_type):
 
 
     ## 5. Load PSF (LR image) ==============
-    if is_number(userinput["lr_image_psf"]):
+    if userinput["lr_psf_type"] == "fwhm":
         PSF_FWHM_ARCSEC_LR = userinput["lr_image_psf"]
         PSF_LR_TYPE = "fwhm"
         print("Using given FWHM and gaussian for PSF of low-res image.")
         STATS.append("Using given FWHM and gaussian for PSF of low-res image.")
-    else:
+    elif userinput["lr_psf_type"] == "fits":
+        PSF_LR_TYPE = "pixel"
+        with fits.open(os.path.join(userinput["lr_image_psf"])) as hdul:
+            PSF_LR_PIXEL = hdul[0].data
+            PSF_LR_PIXEL = PSF_LR_PIXEL / np.nansum(PSF_LR_PIXEL)
+        print("Using pixel PSF for low-res image in FITS format.")
+        STATS.append("Using pixel PSF for low-res image in FITS format.")
+    elif userinput["lr_psf_type"] == "psfex":
         PSF_LR_TYPE = "pixel"
         with fits.open(os.path.join(userinput["lr_image_psf"])) as hdul:
             PSF_LR_PIXEL = modelPSF_1D(psfcube=hdul[1].data,psfcube_h=hdul[1].header,param=21) #22
             #tmp = Cutout2D(data=PSF_LR_PIXEL,position=ndimage.measurements.maximum_position(PSF_LR_PIXEL),size=(21,21) , copy=True , mode="trim")
             #PSF_LR_PIXEL = tmp.data.copy()
             PSF_LR_PIXEL = PSF_LR_PIXEL / np.nansum(PSF_LR_PIXEL)
-        print("Using pixel PSF for low-res image.")
-        STATS.append("Using pixel PSF for low-res image.")
+        print("Using pixel PSF for low-res image in PSFex format.")
+        STATS.append("Using pixel PSF for low-res image in PSFex format.")
+    else:
+        print("PSF type not understood.")
+        STATS.append("PSF type not understood.")
+        quit()
 
 
     ## 6. Select galaxies ===========
@@ -339,20 +350,11 @@ def fit_LR_image(userinput , tileid , seg_map_type):
                         psf=NCircularGaussianPSF([userinput["lr_image_psf"]/2.35/lr_pixscale], [1.]),
                         wcs=NullWCS(), photocal=NullPhotoCal(),
                         sky=ConstantSky(lr_img_medbkg))
-            tim_simple_lr = Image(data=img_cutout, invvar=np.ones_like(img_cutout) / (lr_img_pixnoise**2),
-                        psf=NCircularGaussianPSF([0.7/2.35/lr_pixscale], [1.]),
-                        wcs=NullWCS(), photocal=NullPhotoCal(),
-                        sky=ConstantSky(lr_img_medbkg))
         if PSF_LR_TYPE == "pixel":
             tim_compl_lr = Image(data=img_cutout, invvar=np.ones_like(img_cutout) / (lr_img_pixnoise**2),
                         psf=PixelizedPSF(PSF_LR_PIXEL),
                         wcs=NullWCS(), photocal=NullPhotoCal(),
                         sky=ConstantSky(lr_img_medbkg))
-            tim_simple_lr = Image(data=img_cutout, invvar=np.ones_like(img_cutout) / (lr_img_pixnoise**2),
-                        psf=NCircularGaussianPSF([0.7/2.35/lr_pixscale], [1.]),
-                        wcs=NullWCS(), photocal=NullPhotoCal(),
-                        sky=ConstantSky(lr_img_medbkg))
-
 
         ## 8.5 Run TRACTOR in simple mode to get position offset (in case astrometry is not perfect) #######
 
