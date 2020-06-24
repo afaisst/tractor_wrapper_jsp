@@ -138,6 +138,9 @@ with the following options:
 - hr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the high-resolution image. The file lists offsets in milli-arcseconds between stars on the high-resolution image and Gaia (in the sense HRI-Gaia). There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
 -tile_id: This integer number defines the tile on which the code is run. This is the essential number linked to the job file. See below for a detailed explanation.
 
+Note: you can define relative paths. For example, use "../FOLDER" if script is run in "scripts/". 
+
+
 #### Tiling and jobs
 The code takes an input image ("lr_large_image_name" and "hr_large_image_name") and first creates cutout tiles of that image according the the size defined by the user (using the keyword "cutoutsize_arcsec").
 For example, if the image is of size 3' x 3', and the cutout size is chosen to be [60,60] (meaning 1' x 1'), then 9 tiles are created. **Make sure that the cutout size covers the whole image!**. The keyword "tile_id" lets you tell the program on which tile it should run. This defines a job.
