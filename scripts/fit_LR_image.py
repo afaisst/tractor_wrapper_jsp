@@ -155,11 +155,9 @@ def fit_LR_image(userinput , tileid , seg_map_type):
     hsc_acs_median_ra = hsc_gaia_median_ra - acs_gaia_median_ra # in mas
     hsc_acs_median_dec = hsc_gaia_median_dec - acs_gaia_median_dec # in mas
 
-    delta_X_median_px = (-1)*hsc_acs_median_dec/1000 / lr_pixscale
-    delta_Y_median_px = hsc_acs_median_ra/1000 / lr_pixscale
+    delta_X_median_px = (-1)*hsc_acs_median_ra/1000 / lr_pixscale ## changed dec -> ra (july 8 2020)
+    delta_Y_median_px = hsc_acs_median_dec/1000 / lr_pixscale ## changed ra -> dec (july 8 2020)
 
-    #delta_X_median_px = (-1)*np.nanmedian(astro_offset["delta_dec_mas"])/1000 / lr_pixscale
-    #delta_Y_median_px = np.nanmedian(astro_offset["delta_ra_mas"])/1000 / lr_pixscale
     print("Astrometric offset in mas of LR image (ra,dec) = (%5.3g,%5.3g)" % (hsc_gaia_median_ra,hsc_gaia_median_dec))
     print("Astrometric offset in mas of HR image (ra,dec) = (%5.3g,%5.3g)" % (acs_gaia_median_ra,acs_gaia_median_dec))
     print("Astrometric offset in mas of image (ra,dec) = (%5.3g,%5.3g)" % (hsc_acs_median_ra,hsc_acs_median_dec))
@@ -642,23 +640,31 @@ def fit_LR_image(userinput , tileid , seg_map_type):
     # three types of flags:
     # 1. masked area on the LR image
     # 2. mask also objects that are not detected on the LR image.
-    # 3. Close to the edge (within 1")
+    # 3. Close to the edge (within 3")
 
     lr_maskbad = mkmask(lr_mask,bitlist=[lr_mask_h["MP_NO_DATA"],lr_mask_h["MP_INTRP"],lr_mask_h["MP_SUSPECT"]]) # get areas without data and turn into NaN
-    #lr_segmap_sextractor
 
     TABLE["flag_bad.lr"] = np.zeros(len(TABLE))
     TABLE["flag_detected.lr"] = np.zeros(len(TABLE))
     TABLE["flag_edge.lr"] = np.zeros(len(TABLE))
     for ii in range(len(TABLE)):
-        if lr_maskbad[ int(TABLE["Y_IMAGE_tractor.lr"][ii]-1) , int(TABLE["X_IMAGE_tractor.lr"][ii]-1) ] != 0:
+
+        try:
+            if lr_maskbad[ int(TABLE["Y_IMAGE_tractor.lr"][ii]-1) , int(TABLE["X_IMAGE_tractor.lr"][ii]-1) ] != 0:
+                TABLE["flag_bad.lr"][ii] = 1
+        except:  # if pixel is not on image, set to flag_bad = 1
             TABLE["flag_bad.lr"][ii] = 1
-        if lr_segmap_sextractor[ int(TABLE["Y_IMAGE_tractor.lr"][ii]-1) , int(TABLE["X_IMAGE_tractor.lr"][ii]-1) ] != 0:
-            TABLE["flag_detected.lr"][ii] = 1
-        if ( ( (TABLE["X_IMAGE_tractor.lr"][ii]-1) < (1/lr_pixscale) )
-            | ( (TABLE["X_IMAGE_tractor.lr"][ii]-1) > (lr_img.shape[1]-1-(1/lr_pixscale)))
-            | ( (TABLE["Y_IMAGE_tractor.lr"][ii]-1) < (1/lr_pixscale) )
-            | ( (TABLE["Y_IMAGE_tractor.lr"][ii]-1) > (lr_img.shape[0]-1-(1/lr_pixscale)))
+
+        try:
+            if lr_segmap_sextractor[ int(TABLE["Y_IMAGE_tractor.lr"][ii]-1) , int(TABLE["X_IMAGE_tractor.lr"][ii]-1) ] != 0:
+                TABLE["flag_detected.lr"][ii] = 1
+        except: # set to not detected (flag_detected = 0) of pixel is not on image.
+            TABLE["flag_detected.lr"][ii] = 0
+        
+        if ( ( (TABLE["X_IMAGE_tractor.lr"][ii]-1) < (3/lr_pixscale) )
+            | ( (TABLE["X_IMAGE_tractor.lr"][ii]-1) > (lr_img.shape[1]-1-(3/lr_pixscale)))
+            | ( (TABLE["Y_IMAGE_tractor.lr"][ii]-1) < (3/lr_pixscale) )
+            | ( (TABLE["Y_IMAGE_tractor.lr"][ii]-1) > (lr_img.shape[0]-1-(3/lr_pixscale)))
             ):
             TABLE["flag_edge.lr"][ii] = 1
 
