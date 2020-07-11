@@ -25,21 +25,21 @@ The script "run.sh" does exactly this. The script contains only one line (and a 
 #!/bin/bash
 # Run all N jobs on C CPUs (2*C vCPUs)
 # Do not forget to time it
-# parallel -j C ./task_runner_jsp.sh {%} {} ::: {1..N}
+# parallel -j C ./task_runner.sh {%} {} ::: {1..N}
 
-parallel -j 1 ./task_runner_jsp.sh {%} {} ::: {1..1}
+parallel -j 1 ./task_runner.sh {%} {} ::: {1..1}
 ```
 
 The scripts runs a series of job files (called job_X.json, where X = 1,2, ... , N and N the total number of job files). Each of these jobs is run on C CPUs (or 2 * C virtual CPUs). The example above would run 1 job on 1 CPU. Alternatively, you can say 
 ```
-parallel -j 2 ./task_runner_jsp.sh {%} {} ::: {1..4}
+parallel -j 2 ./task_runner.sh {%} {} ::: {1..4}
 ```
 which would run 4 jobs on 2 CPUs each. If you have 4 CPUs in total, this would run two jobs at the same time in parallel.
 
-The task runner file (task_runner_jsp.sh) looks something like this:
+The task runner file (task_runner.sh) looks something like this:
 ```
 #! /bin/bash
-# task_runner_jsp.sh
+# task_runner.sh
  
 slot=$1
  
