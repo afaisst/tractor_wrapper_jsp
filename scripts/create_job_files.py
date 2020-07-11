@@ -8,10 +8,6 @@ import copy
 
 import sh
 
-#from astropy.io import fits, ascii
-#from astropy.table import Table, Column, MaskedColumn, hstack, vstack
-
-
 
 #### USER INPUT ####
 
@@ -60,7 +56,7 @@ template_userinput = {
              "lr_compl_niter":10, # number of tractor iterations for complex models (low-resolution image)
              "hr_zp":25.94734, # photometric zeropoint of high-resolution image
              "lr_zp":27, # photometric zeropoint of low-resolution image
-             "sex_command":"/usr/bin/sextractor" # SExtractor command (changes depending on system)
+             "sex_command":"/usr/bin/sextractor", # SExtractor command (changes depending on system)
 			 "hr_psf_type":"fits", # PSF type for high-resolution image ("fwhm", "fits", or "psfex")
 			 "lr_psf_type":"psfex", # PSF type for low-resolution image ("fwhm", "fits", or "psfex")
 			 "hr_large_image_name":"tbd", # high-resolution large image (to be changed)
