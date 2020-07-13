@@ -128,7 +128,7 @@ def get_HR_model(userinput,tileids):
         PARS_this_process["CHECKIMAGE_TYPE"] = "SEGMENTATION"
         PARS_this_process["PHOT_APERTURES"] = ','.join(map(str, get_apertures(hr_pixscale,aperturelist_arcsec=[3.0]).tolist())) # Note: if number of apertures are changes, also change sex.par file!!!
         PARS_this_process["PIXEL_SCALE"] = hr_pixscale
-        PARS_this_process["DEBLEND_MINCONT"] = 0.01 #0.01
+        PARS_this_process["DEBLEND_MINCONT"] = 0.1 #0.01
         PARS_this_process["DEBLEND_NTHRESH"] = 32 #0.01
         PARS_this_process["DETECT_MINAREA"] = 20 # 5
         PARS_this_process["DETECT_THRESH"] = 2.0 #2
