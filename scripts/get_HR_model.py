@@ -213,7 +213,11 @@ def get_HR_model(userinput,tileids):
         OBJECTS_TO_FIT = Table(data=np.asarray(sexcat_hr["NUMBER.hr"]).reshape((len(sexcat_hr),1)),names=["NUMBER.hr"]) # store here the NUMBERs of the objects that still have to be fitted
         OBJECTS_FITTED = [] # store there NUMBERs of objects that have been fitted.
         OBJECTS_FAILED = [] # store there NUMBERs of objects for which the fit failed.
-
+        
+        ## DEBUGGING
+        #sel_debug = np.where(OBJECTS_TO_FIT["NUMBER.hr"] == 1043)[0] ######## ADDED
+        #OBJECTS_TO_FIT = OBJECTS_TO_FIT[sel_debug] ######## ADDED
+        
         TABLE = Table()
 
         group_counter = 0
@@ -225,7 +229,7 @@ def get_HR_model(userinput,tileids):
             print("\nMain Object: %g (%g objects left)" % (main_obj_number,len(OBJECTS_TO_FIT)) )
 
             id_in_sexcat = np.where( sexcat_hr["NUMBER.hr"] == main_obj_number )[0][0]
-
+            
             ## extract image part that should be fitted. ==============
             # Don't for get new WCS!!!
 
@@ -234,7 +238,7 @@ def get_HR_model(userinput,tileids):
             ymin = sexcat_hr["YMIN_IMAGE.hr"][id_in_sexcat]-1
             xmax = sexcat_hr["XMAX_IMAGE.hr"][id_in_sexcat]-1
             ymax = sexcat_hr["YMAX_IMAGE.hr"][id_in_sexcat]-1
-
+            
             # get some extra space
             xmin = xmin - (xmax-xmin)*0.5
             xmax = xmax + (xmax-xmin)*0.5
@@ -248,10 +252,13 @@ def get_HR_model(userinput,tileids):
 
             tmp = Cutout2D(data=hr_seg,position=( xmin+(xmax-xmin)/2,ymin+(ymax-ymin)/2),size=(ymax-ymin , xmax-xmin ) , copy=True , mode="trim",wcs=hr_img_wcs)
             hr_seg_cutout = tmp.data.copy()
+            
+            
 
 
             ## Fit that small image with Tractor ============
-
+            print(np.unique(hr_seg_cutout.ravel()))
+            
             ## get objects that are in cutout
             id_objects_in_cutout = list(np.unique(hr_seg_cutout.ravel()))# id_objects_in_cutout.copy()
             if [0] in id_objects_in_cutout:
@@ -260,15 +267,41 @@ def get_HR_model(userinput,tileids):
             sexcat_hr_in_cutout = sexcat_hr[sel_objects_in_cutout].copy()
             print("Number of sources in cutout: %g" % len(sexcat_hr_in_cutout) )
             print("Objects to be fitted: %s" % str(list(sexcat_hr_in_cutout["NUMBER.hr"])) )
+            
+            ## Check some things before running ------
+            # This was added on July 20 2020 when a (probably?) bug in SExtractor was discovered
+            # when running job_1008 (9813, 6_7, tile 0008). Specifically, the NUMBER 1043 (although in the
+            # SExtractor catalog) was *not* on the Segmentation map!. I added the following check
+            # to prevent the script to crash. If it doesn't find a NUMBER on the segmentation map, it
+            # simply skips the galaxy. This happened in SExtractor version 2.19.1
+            FATAL_FAIL = 0
+            
+            ## 1. Check if there is an object at all.
+            # If not, skip all below and add the object to OBJECTS_FAILED (remove from OBJECTS_TO_FIT).
+            if len(sexcat_hr_in_cutout) == 0: # check if there is an object in the cutout at all.
+                print("NO SOURCES IN CUTOUTS - SKIP")
+                FATAL_FAIL = 1
+                OBJECTS_FAILED.append(main_obj_number)
+                sel_tmp = np.where( OBJECTS_TO_FIT["NUMBER.hr"] == main_obj_number )[0]
+                if len(sel_tmp) > 0:
+                    OBJECTS_TO_FIT.remove_row( int(sel_tmp) )
+               
+            ## 2. Check if main object is in cutout.
+            # It happened at least ones that there is no segmentation for an object NUMBER.
+            # This might be a big in SExtractor. Therefore, check here if the main object
+            # is in the cutout. If not, go straight to failed and skip the rest.
+            if FATAL_FAIL == 0: # only do this if there is an object, else don't even look at it.
+                if main_obj_number not in np.unique(hr_seg_cutout):
+                    print("MAIN OBJECT %g IS NOT IN THIS SEGMENTATION CUTOUT - this might be bug in SExtractor: skip this object" % main_obj_number)
+                    FATAL_FAIL = 1
+                    OBJECTS_FAILED.append(main_obj_number)
+                    sel_tmp = np.where( OBJECTS_TO_FIT["NUMBER.hr"] == main_obj_number )[0]
+                    if len(sel_tmp) > 0:
+                        OBJECTS_TO_FIT.remove_row( int(sel_tmp) )
 
-            ## Check if there is an object at all. If not, skip all below and add the object to OBJECTS_FAILED (remove from OBJECTS_TO_FIT).
-            if len(sexcat_hr_in_cutout) == 0:
-            	print("NO SOURCES IN CUTOUTS - SKIP")
-            	OBJECTS_FAILED.append(main_obj_number)
-            	sel_tmp = np.where( OBJECTS_TO_FIT["NUMBER.hr"] == main_obj_number )[0]
-            	if len(sel_tmp) > 0:
-                	OBJECTS_TO_FIT.remove_row( int(sel_tmp) )
-            else: # continue here with the rest for this object
+            
+            ## If no FATAL_FAIL, continue
+            if FATAL_FAIL == 0: # continue here with the rest for this object of FATAL_FAIL == 0
 
                 ## Get percentage of the objects in cutout (if not fully included, fit again and don't add to table at the end!)
                 coverage = Table(np.zeros((len(id_objects_in_cutout),4)) , names=["id","nbr_pix_tot","nbr_pix_cutout","ratio"] , dtype=["int","int","int","f"] )
