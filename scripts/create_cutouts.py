@@ -23,15 +23,15 @@ def get_tile_center_for_job(jobfile_name):
     ## Create grid (centers)
 
     # get width
-    width_RA = img_large_lr_header["NAXIS1"]*lr_pixscale/60 # in arcminutes
-    width_DEC = img_large_lr_header["NAXIS2"]*lr_pixscale/60 # in arcminutes
+    width_RA = img_large_lr_header["NAXIS2"]*lr_pixscale/60 # in arcminutes
+    width_DEC = img_large_lr_header["NAXIS1"]*lr_pixscale/60 # in arcminutes
 
     # get number of tiles that fit the low-res image (high-res image has to cover same area or larger)
     ntiles_RA = int(np.ceil(width_RA / (cutoutsize_arcsec[0]/60))) # width is in arcmin and cutout size in arcsec -> convert
     ntiles_RA_rest = np.abs(ntiles_RA*cutoutsize_arcsec[0] - width_RA*60) # in arcsec
     ntiles_DEC = int(np.ceil(width_DEC / (cutoutsize_arcsec[1]/60))) # width is in arcmin and cutout size in arcsec -> convert
     ntiles_DEC_rest = np.abs(ntiles_DEC*cutoutsize_arcsec[1] - width_DEC*60) # in arcsec
-
+    
     # get starting point
     ref_point_lr = wcs.WCS(img_large_lr_header).all_pix2world(0,0,0)
 
@@ -42,11 +42,10 @@ def get_tile_center_for_job(jobfile_name):
     grid_lr_all[0] = grid_lr_all[0].flatten()
     grid_lr_all[1] = grid_lr_all[1].flatten()
 
-
     grid_lr = [[],[]]
     grid_lr[0] = np.asarray([grid_lr_all[0][tile_nbr]])
     grid_lr[1] = np.asarray([grid_lr_all[1][tile_nbr]])
-
+        
     out = {"ra_center":grid_lr[0][0],
           "dec_center":grid_lr[1][0],
            "ra_width_arcsec":cutoutsize_arcsec[0],
