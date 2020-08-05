@@ -344,13 +344,13 @@ def fit_LR_image(userinput , tileid , seg_map_type):
 
         # create Tractor image
         if PSF_LR_TYPE == "fwhm":
-            tim_compl_lr = Image(data=img_cutout, invvar=np.ones_like(img_cutout) / (lr_img_pixnoise**2),
+            tim_compl_lr = Image(data=img_cutout.astype(np.float32), invvar=np.ones_like(img_cutout) / (lr_img_pixnoise**2),
                         psf=NCircularGaussianPSF([userinput["lr_image_psf"]/2.35/lr_pixscale], [1.]),
                         wcs=NullWCS(), photocal=NullPhotoCal(),
                         sky=ConstantSky(lr_img_medbkg))
         if PSF_LR_TYPE == "pixel":
             tim_compl_lr = Image(data=img_cutout, invvar=np.ones_like(img_cutout) / (lr_img_pixnoise**2),
-                        psf=PixelizedPSF(PSF_LR_PIXEL),
+                        psf=PixelizedPSF(PSF_LR_PIXEL.astype(np.float32)),
                         wcs=NullWCS(), photocal=NullPhotoCal(),
                         sky=ConstantSky(lr_img_medbkg))
 
@@ -688,7 +688,7 @@ def fit_LR_image(userinput , tileid , seg_map_type):
                     sky=ConstantSky(lr_img_medbkg))
     if PSF_LR_TYPE == "pixel":
         tim_model_lr = Image(data=np.zeros(lr_img.shape), invvar=np.ones_like(lr_img) / (lr_img_pixnoise**2),
-                    psf=PixelizedPSF(PSF_LR_PIXEL),
+                    psf=PixelizedPSF(PSF_LR_PIXEL.astype(np.float32)),
                     wcs=NullWCS(), photocal=NullPhotoCal(),
                     sky=ConstantSky(lr_img_medbkg))
 

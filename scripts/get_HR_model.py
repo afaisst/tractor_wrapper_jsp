@@ -215,7 +215,7 @@ def get_HR_model(userinput,tileids):
         OBJECTS_FAILED = [] # store there NUMBERs of objects for which the fit failed.
         
         ## DEBUGGING
-        #sel_debug = np.where(OBJECTS_TO_FIT["NUMBER.hr"] == 1043)[0] ######## ADDED
+        #sel_debug = np.where(OBJECTS_TO_FIT["NUMBER.hr"] == 98)[0] ######## ADDED
         #OBJECTS_TO_FIT = OBJECTS_TO_FIT[sel_debug] ######## ADDED
         
         TABLE = Table()
@@ -231,30 +231,40 @@ def get_HR_model(userinput,tileids):
             id_in_sexcat = np.where( sexcat_hr["NUMBER.hr"] == main_obj_number )[0][0]
             
             ## extract image part that should be fitted. ==============
-            # Don't for get new WCS!!!
+            # Don't forget new WCS!!!
 
-            # get extension
+            # get extension (note that SExtractor starts with 1 while Python starts with 0)
             xmin = sexcat_hr["XMIN_IMAGE.hr"][id_in_sexcat]-1
             ymin = sexcat_hr["YMIN_IMAGE.hr"][id_in_sexcat]-1
             xmax = sexcat_hr["XMAX_IMAGE.hr"][id_in_sexcat]-1
             ymax = sexcat_hr["YMAX_IMAGE.hr"][id_in_sexcat]-1
+
             
             # get some extra space
             xmin = xmin - (xmax-xmin)*0.5
             xmax = xmax + (xmax-xmin)*0.5
             ymin = ymin - (ymax-ymin)*0.5
             ymax = ymax + (ymax-ymin)*0.5
+            
+            # get final numbers (new: Aug 4, 2020)
+            x_extension = np.float(xmax - xmin)
+            y_extension = np.float(ymax - ymin)
+            #x_extension = np.nanmax( np.asarray([np.float(xmax - xmin) , 1.0/hr_pixscale]) ) # make cutouts at least 1 arcsec across
+            #y_extension = np.nanmax( np.asarray([np.float(ymax - ymin) , 1.0/hr_pixscale]) ) # make cutouts at least 1 arcsec across
+            x_center = xmin+(xmax-xmin)/2 # this is the same as before (only center counts)
+            y_center = ymin+(ymax-ymin)/2 # this is the same as befor (only center counts)
+
 
             # for cutout: X and Y reversed and Python starts with 0 (therefore X_IMAGE-1 and Y_IMAGE-1)!!
-            tmp = Cutout2D(data=hr_img,position=( xmin+(xmax-xmin)/2,ymin+(ymax-ymin)/2),size=(ymax-ymin , xmax-xmin ) , copy=True , mode="trim",wcs=hr_img_wcs)
+            #tmp = Cutout2D(data=hr_img,position=( xmin+(xmax-xmin)/2,ymin+(ymax-ymin)/2),size=(ymax-ymin , xmax-xmin ) , copy=True , mode="trim",wcs=hr_img_wcs)
+            tmp = Cutout2D(data=hr_img,position=( x_center , y_center) , size=(y_extension , x_extension ) , copy=True , mode="trim",wcs=hr_img_wcs)
             img_cutout = tmp.data.copy()
             img_cutout_wcs = tmp.wcs.copy()
 
-            tmp = Cutout2D(data=hr_seg,position=( xmin+(xmax-xmin)/2,ymin+(ymax-ymin)/2),size=(ymax-ymin , xmax-xmin ) , copy=True , mode="trim",wcs=hr_img_wcs)
+            #tmp = Cutout2D(data=hr_seg,position=( xmin+(xmax-xmin)/2,ymin+(ymax-ymin)/2),size=(ymax-ymin , xmax-xmin ) , copy=True , mode="trim",wcs=hr_img_wcs)
+            tmp = Cutout2D(data=hr_seg,position=( x_center , y_center) , size=(y_extension , x_extension ) , copy=True , mode="trim",wcs=hr_img_wcs)
             hr_seg_cutout = tmp.data.copy()
             
-            
-
 
             ## Fit that small image with Tractor ============
             print(np.unique(hr_seg_cutout.ravel()))
@@ -328,7 +338,9 @@ def get_HR_model(userinput,tileids):
                     flux_init = Flux(sexcat_hr_in_cutout["FLUX_AUTO.hr"][ii])
                     #tmp = hr_img_wcs.all_world2pix([[sexcat_hr["ALPHA_J2000.hr"][ii],sexcat_hr["DELTA_J2000.hr"][ii]]],0)
 
-                    if sexcat_hr_in_cutout["is_pointsource"][ii] == 20: # Do not use pointsource fitting in HR image
+                    #if sexcat_hr_in_cutout["is_pointsource"][ii] == 20: # Do not use pointsource fitting in HR image
+                    if sexcat_hr_in_cutout["is_pointsource"][ii] == 2: # Use pointsource fitting in HR image
+                        print("Fitting as point source!")
                         thissource = PointSource(pos_init , flux_init )
                     else:
                         n_init = SersicIndex(2.0)
@@ -346,13 +358,13 @@ def get_HR_model(userinput,tileids):
 
                 # create Tractor image
                 if PSF_HR_TYPE == "fwhm":
-                    tim_compl_hr = Image(data=img_cutout, invvar=np.ones_like(img_cutout) / (hr_img_pixnoise**2),
+                    tim_compl_hr = Image(data=img_cutout.astype(np.float32), invvar=np.ones_like(img_cutout) / (hr_img_pixnoise**2),
                                 psf=NCircularGaussianPSF([userinput["hr_image_psf"]/2.35/hr_pixscale], [1.]),
                                 wcs=NullWCS(), photocal=NullPhotoCal(),
                                 sky=ConstantSky(hr_img_medbkg))
                 if PSF_HR_TYPE == "pixel":
-                    tim_compl_hr = Image(data=img_cutout, invvar=np.ones_like(img_cutout) / (hr_img_pixnoise**2),
-                                psf=PixelizedPSF(PSF_HR_PIXEL),
+                    tim_compl_hr = Image(data=img_cutout.astype(np.float32), invvar=np.ones_like(img_cutout) / (hr_img_pixnoise**2),
+                                psf=PixelizedPSF(PSF_HR_PIXEL.astype(np.float32)),
                                 wcs=NullWCS(), photocal=NullPhotoCal(),
                                 sky=ConstantSky(hr_img_medbkg))
 
@@ -408,7 +420,8 @@ def get_HR_model(userinput,tileids):
                             #pos_init = PixPos(sexcat_hr_in_cutout["X_IMAGE.hr"][ii],sexcat_hr_in_cutout["Y_IMAGE.hr"][ii])
                             flux_init = Flux(sexcat_hr_in_cutout["FLUX_AUTO.hr"][ii])
 
-                            if sexcat_hr_in_cutout["is_pointsource"][ii] == 20: # Do not fit point source in HR image
+                            #if sexcat_hr_in_cutout["is_pointsource"][ii] == 20: # Do not fit point source in HR image
+                            if sexcat_hr_in_cutout["is_pointsource"][ii] == 2: # Fit point source in HR image
                                 thissource = PointSource(pos_init , flux_init )
                             else:
                                 n_init = SersicIndex(2.0)
@@ -435,7 +448,7 @@ def get_HR_model(userinput,tileids):
                                 #src_compl_hr_2[ii].freezeParams("sersicindex")
                                 src_compl_hr_2[ii].shape.freezeParams("phi")
 
-                        for ii in range(iter_max-1):
+                        for ii in range(iter_max): # changed to iter_max (removed "-1" because range(N) is going up to N-1)
                             try:
                                 dlnp,X,alpha,variances = tractor_compl_hr.optimize(variance=True)
                                 print(str(ii)+" ("+str(dlnp)+") ",end=" ")
@@ -449,6 +462,8 @@ def get_HR_model(userinput,tileids):
                     else:
                         FIT_SUCCESS_2 = False
                         iter_max = -99
+                
+                
                 
                 if not FIT_SUCCESS_2:
                     print("FIT FAILED. MOVING ON")
@@ -466,7 +481,8 @@ def get_HR_model(userinput,tileids):
                     src_compl_hr = src_compl_hr_2.copy() # now copy final back to original name
                 else:
                     pass
-
+                
+                
 
 	            ## IF ALL IS GOOD (i.e., fit success in first or second round): =========
 
@@ -630,7 +646,7 @@ def get_HR_model(userinput,tileids):
                         sky=ConstantSky(0.))
         if PSF_HR_TYPE == "pixel":
             tim_model_hr = Image(data=np.zeros(hr_img.shape), invvar=np.ones_like(hr_img) / (hr_img_pixnoise**2), # CHANGE: img_cutout to hr_img
-                        psf=PixelizedPSF(PSF_HR_PIXEL),
+                        psf=PixelizedPSF(PSF_HR_PIXEL.astype(np.float32)),
                         wcs=NullWCS(), photocal=NullPhotoCal(),
                         sky=ConstantSky(0.))
 
@@ -643,7 +659,8 @@ def get_HR_model(userinput,tileids):
         for ii in range(len(TABLE)):
             pos_init = PixPos(TABLE["X_IMAGE_tractor.hr"][ii]-1,TABLE["Y_IMAGE_tractor.hr"][ii]-1) # DONT FORGET THAT PYTHON STARTS AT 0
             flux_init = Flux(TABLE["brightness.Flux.hr"][ii])
-            if TABLE["is_pointsource"][ii] == 20:
+            #if TABLE["is_pointsource"][ii] == 20:
+            if TABLE["is_pointsource"][ii] == 2:
                 thissource = PointSource(pos_init,flux_init)
             else:
                 n_init = SersicIndex(TABLE["sersicindex.SersicIndex.hr"][ii])
