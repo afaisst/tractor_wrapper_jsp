@@ -138,8 +138,8 @@ with the following options:
 - hr_psf_type: PSF type, can be "fits" (FITS image), "fwhm" (the Gaussian FWHM in arcsec, float), "psfex" (PSFex gemerated PSF). 
 - lr_image_psf: PSF of the low-resolution image (see "lr_psf_type").
 - lr_psf_type: PSF type, can be "fits" (FITS image), "fwhm" (the Gaussian FWHM in arcsec, float), "psfex" (PSFex gemerated PSF). 
-- lr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the low-resolution image. The file lists offsets in milli-arcseconds between stars on the low-resolution image and Gaia (in the sense LRI-Gaia). There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
-- hr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the high-resolution image. The file lists offsets in milli-arcseconds between stars on the high-resolution image and Gaia (in the sense HRI-Gaia). There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
+- lr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the low-resolution image. The file lists offsets in milli-arcseconds between stars on the low-resolution image and a reference catalog (e.g., Gaia). The sense is LRI-RefCat. There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
+- hr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the high-resolution image. The file lists offsets in milli-arcseconds between stars on the high-resolution image and a reference catalog (e.g., Gaia). The sense is HRI-RefCat. There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
 -tile_id: This integer number defines the tile on which the code is run. This is the essential number linked to the job file. See below for a detailed explanation.
 
 
