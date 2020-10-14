@@ -167,6 +167,7 @@ def get_HR_model(userinput,tileids):
                              | ((-2.5*np.log10(sexcat_hr["FLUX_APER.hr"])+userinput["hr_zp"] < 19)
                                 & (sexcat_hr["B_IMAGE.hr"]/sexcat_hr["A_IMAGE.hr"]>0.8)
                                )
+                             | (sexcat_hr["FLUX_RADIUS.hr"] < userinput["hr_psf_fwhm_arcsec"]/hr_pixscale)
                             )[0]
         sexcat_hr["is_pointsource"] = np.zeros(len(sexcat_hr))
         sexcat_hr["is_pointsource"][sel_stars] = 2
