@@ -116,6 +116,7 @@ It looks something like this (the file names are taken from the example data, se
 "lr_psf_type":"psfex",
 "lr_astrometry_correction_name": "../example_data/astrometry_offsets/lr_astro.txt",
 "hr_astrometry_correction_name": "../example_data/astrometry_offsets/hr_astro.txt",
+"hr_psf_fwhm_arcsec":0.1,
 "tile_id": 0
 }
 ```
@@ -140,6 +141,7 @@ with the following options:
 - lr_psf_type: PSF type, can be "fits" (FITS image), "fwhm" (the Gaussian FWHM in arcsec, float), "psfex" (PSFex gemerated PSF). 
 - lr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the low-resolution image. The file lists offsets in milli-arcseconds between stars on the low-resolution image and a reference catalog (e.g., Gaia). The sense is LRI-RefCat. There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
 - hr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the high-resolution image. The file lists offsets in milli-arcseconds between stars on the high-resolution image and a reference catalog (e.g., Gaia). The sense is HRI-RefCat. There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
+- hr_psf_fwhm_arcsec: give here an approximate PSF FWHM of the high-resolution PSF. This is used to flag point sources, which are then fit with the Tractor PointSource() class. Simulations showed that fitting point sources as point sources increase the accuracy of the photometry.
 -tile_id: This integer number defines the tile on which the code is run. This is the essential number linked to the job file. See below for a detailed explanation.
 
 
