@@ -535,11 +535,14 @@ def get_HR_model(userinput,tileids):
                 mod_this_cutout = tractor_compl_hr.getModelImage(0)
                 res_this_cutout = img_cutout - mod_this_cutout
                 res_sums = []
+                npix_in_mask = []
                 for ccc in range(len(this_table)):
                     mask_tmp = np.zeros(hr_seg_cutout.shape)
                     mask_tmp[hr_seg_cutout == this_table["NUMBER.hr"][ccc]] = 1
                     res_sums.append( 1 * np.sqrt( np.nansum( mask_tmp * res_this_cutout**2 ) ) )
+                    npix_in_mask.append( len(np.where(mask_tmp == 1)[0]) )
                 this_table["res_sum_square.hr"] = res_sums
+                this_table["npix_in_mask.hr"] = npix_in_mask
 
 
 
