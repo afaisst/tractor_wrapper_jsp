@@ -163,11 +163,16 @@ def get_HR_model(userinput,tileids):
         for key in sexcat_hr.keys():
             sexcat_hr.rename_column(key, key + ".hr" )
         sexcat_hr.sort("FLUX_AUTO.hr") # sort by flux (faint first).
-        sel_stars = np.where( (sexcat_hr["CLASS_STAR.hr"] > 0.8)
-                             | ((-2.5*np.log10(sexcat_hr["FLUX_APER.hr"])+userinput["hr_zp"] < 19)
+        sel_stars = np.where( (
+                                 (sexcat_hr["CLASS_STAR.hr"] > 0.8)
+                                & (sexcat_hr["MAG_AUTO.hr"] < 23) # 19
                                 & (sexcat_hr["B_IMAGE.hr"]/sexcat_hr["A_IMAGE.hr"]>0.8)
-                               )
-                             | (sexcat_hr["FLUX_RADIUS.hr"] < userinput["hr_psf_fwhm_arcsec"]/hr_pixscale)
+                              )
+                             | (
+                                 (sexcat_hr["MAG_AUTO.hr"] >= 23) # added
+                                & (sexcat_hr["FLUX_RADIUS.hr"] < userinput["hr_psf_fwhm_arcsec"]/hr_pixscale*0.7)
+                                & (sexcat_hr["B_IMAGE.hr"]/sexcat_hr["A_IMAGE.hr"]>0.8) # added
+                                )
                             )[0]
         sexcat_hr["is_pointsource"] = np.zeros(len(sexcat_hr))
         sexcat_hr["is_pointsource"][sel_stars] = 2
