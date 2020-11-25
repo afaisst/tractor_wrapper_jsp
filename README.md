@@ -117,6 +117,7 @@ It looks something like this (the file names are taken from the example data, se
 "lr_astrometry_correction_name": "../example_data/astrometry_offsets/lr_astro.txt",
 "hr_astrometry_correction_name": "../example_data/astrometry_offsets/hr_astro.txt",
 "hr_psf_fwhm_arcsec":0.1,
+"spurious_pixel_cut":2,
 "tile_id": 0
 }
 ```
@@ -142,6 +143,7 @@ with the following options:
 - lr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the low-resolution image. The file lists offsets in milli-arcseconds between stars on the low-resolution image and a reference catalog (e.g., Gaia). The sense is LRI-RefCat. There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
 - hr_astrometry_correction_name: Path (absolute or relative) to an astrometry offset file for the high-resolution image. The file lists offsets in milli-arcseconds between stars on the high-resolution image and a reference catalog (e.g., Gaia). The sense is HRI-RefCat. There can be multiple stars (in this case the median is taken) or just one value for RA and DEC.
 - hr_psf_fwhm_arcsec: give here an approximate PSF FWHM of the high-resolution PSF. This is used to flag point sources, which are then fit with the Tractor PointSource() class. Simulations showed that fitting point sources as point sources increase the accuracy of the photometry.
+- spurious_pixel_cut: give a limit for the pixel size (in pixels, radius) in the high-resolution image below which sources are removed. This can be useful for rejecting potential spurious sources (for COSMOS ACS/F814W, a good choice is 2px, about 1 pixel smaller than the PSF FWHM)
 -tile_id: This integer number defines the tile on which the code is run. This is the essential number linked to the job file. See below for a detailed explanation.
 
 
