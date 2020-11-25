@@ -159,6 +159,7 @@ def get_HR_model(userinput,tileids):
 
 
         # 4.4 Read SExtractor catalog and change column names to .hr and add "stellarity flag"
+        # Also remove spurious sources by making a cut in the size. (userinput in px)
         sexcat_hr = ascii.read(sex_output_cat_hr_file)
         for key in sexcat_hr.keys():
             sexcat_hr.rename_column(key, key + ".hr" )
@@ -176,8 +177,15 @@ def get_HR_model(userinput,tileids):
                             )[0]
         sexcat_hr["is_pointsource"] = np.zeros(len(sexcat_hr))
         sexcat_hr["is_pointsource"][sel_stars] = 2
-        print("Number of galaxies in high-resolution SExtractor catalog: %g" % len(sexcat_hr))
-        STATS.append("Number of galaxies in high-resolution SExtractor catalog: %g" % len(sexcat_hr))
+        
+        print("Number of galaxies in high-resolution SExtractor catalog (with spurious): %g" % len(sexcat_hr))
+        STATS.append("Number of galaxies in high-resolution SExtractor catalog (with spurious): %g" % len(sexcat_hr))
+
+        sel_not_spurious = np.where( (sexcat_hr["FLUX_RADIUS.hr"] > userinput["spurious_pixel_cut"]) )[0] ### NEW
+        sexcat_hr = sexcat_hr[sel_not_spurious] ## NEW
+
+        print("Number of galaxies in high-resolution SExtractor catalog (without spurious): %g" % len(sexcat_hr))
+        STATS.append("Number of galaxies in high-resolution SExtractor catalog (without spurious): %g" % len(sexcat_hr))
 
         # 4.45 Read SExtractor Segmentation map
         with fits.open(os.path.join(dir_this_process,"hr_seg.fits") ) as hdul:
