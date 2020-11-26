@@ -177,15 +177,19 @@ def get_HR_model(userinput,tileids):
                             )[0]
         sexcat_hr["is_pointsource"] = np.zeros(len(sexcat_hr))
         sexcat_hr["is_pointsource"][sel_stars] = 2
+
+        sel_spurious = np.where( (sexcat_hr["FLUX_RADIUS.hr"] < userinput["spurious_pixel_cut"]) )[0] ### NEW
+        sel_not_spurious = np.where( (sexcat_hr["FLUX_RADIUS.hr"] >= userinput["spurious_pixel_cut"]) )[0] ### NEW
+        sexcat_hr["is_spurious"] = np.zeros(len(sexcat_hr))
+        sexcat_hr["is_spurious"][sel_spurious] = 1
         
+
         print("Number of galaxies in high-resolution SExtractor catalog (with spurious): %g" % len(sexcat_hr))
         STATS.append("Number of galaxies in high-resolution SExtractor catalog (with spurious): %g" % len(sexcat_hr))
 
-        sel_not_spurious = np.where( (sexcat_hr["FLUX_RADIUS.hr"] > userinput["spurious_pixel_cut"]) )[0] ### NEW
-        sexcat_hr = sexcat_hr[sel_not_spurious] ## NEW
+        print("Number of potentially spurious sources: %g" % len(sel_spurious))
+        STATS.append("Number of potentially spurious sources: %g" % len(sel_spurious))
 
-        print("Number of galaxies in high-resolution SExtractor catalog (without spurious): %g" % len(sexcat_hr))
-        STATS.append("Number of galaxies in high-resolution SExtractor catalog (without spurious): %g" % len(sexcat_hr))
 
         # 4.45 Read SExtractor Segmentation map
         with fits.open(os.path.join(dir_this_process,"hr_seg.fits") ) as hdul:
@@ -201,10 +205,22 @@ def get_HR_model(userinput,tileids):
                     col_this = "cyan"
                 else:
                     col_this = "magenta"
+                if sexcat_hr["is_spurious"][jj] == 1:
+                    col_this = "red"
+                
                 f.write('circle(%s,%s,0.5") # color=%s width=2 text={%s}\n' % (sexcat_hr["ALPHA_J2000.hr"][jj] , sexcat_hr["DELTA_J2000.hr"][jj], col_this, sexcat_hr["NUMBER.hr"][jj]) )
 
-        
+        # 4.6 Remove spurious sources
+        ids_spurious = sexcat_hr["NUMBER.hr"][sel_spurious]
+        for ddd in ids_spurious:
+            hr_seg[hr_seg == ddd] = 0
+        sexcat_hr = sexcat_hr[sel_not_spurious] ## NEW 
 
+        print("Number of galaxies in high-resolution SExtractor catalog (without spurious): %g" % len(sexcat_hr))
+        STATS.append("Number of galaxies in high-resolution SExtractor catalog (without spurious): %g" % len(sexcat_hr))
+
+        
+        
         ## Get some properties of the images ================
 
         ## Check some stuff
